@@ -508,7 +508,7 @@ export default function Index() {
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl lg:text-4xl font-display font-bold text-primary-foreground mb-4">Ready to Start Your Journey?</h2>
             <p className="text-lg text-primary-foreground/80 mb-8">Join thousands of learners who've transformed their careers with SKILLBRIDGE. Your next opportunity awaits.</p>
-            <Link to="/auth?mode=register">
+            <Link to="/courses">
               <Button variant="hero" size="xl">
                 Get Started Free
                 <ArrowRight className="h-5 w-5" />
