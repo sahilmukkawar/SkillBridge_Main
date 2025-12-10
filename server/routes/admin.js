@@ -2,6 +2,7 @@ import express from 'express';
 import User from '../models/User.js';
 import Course from '../models/Course.js';
 import Mentor from '../models/Mentor.js';
+import TeamMember from '../models/TeamMember.js';
 import Enrollment from '../models/Enrollment.js';
 import ContactMessage from '../models/ContactMessage.js';
 import { authenticate, requireAdmin } from '../middleware/auth.js';
@@ -49,10 +50,11 @@ const router = express.Router();
 // Get admin stats
 router.get('/stats', authenticate, requireAdmin, async (req, res) => {
   try {
-    const [users, courses, mentors, enrollments, messages] = await Promise.all([
+    const [users, courses, mentors, teamMembers, enrollments, messages] = await Promise.all([
       User.countDocuments(),
       Course.find().sort({ created_at: -1 }),
       Mentor.find().sort({ name: 1 }),
+      TeamMember.find().sort({ display_order: 1 }),
       Enrollment.countDocuments(),
       ContactMessage.countDocuments()
     ]);
@@ -62,11 +64,13 @@ router.get('/stats', authenticate, requireAdmin, async (req, res) => {
         users,
         courses: courses.length,
         mentors: mentors.length,
+        team: teamMembers.length,
         enrollments,
         messages
       },
       courses,
-      mentors
+      mentors,
+      teamMembers
     });
   } catch (error) {
     console.error('Get admin stats error:', error);
@@ -92,14 +96,18 @@ router.post('/upload-image', authenticate, requireAdmin, upload.single('image'),
 // Add mentor
 router.post('/mentors', authenticate, requireAdmin, async (req, res) => {
   try {
-    const { name, title, bio, skills, active } = req.body;
+    const { name, title, bio, skills, active, image_url, linkedin, availability, display_order } = req.body;
 
     const mentor = new Mentor({
       name,
       title,
       bio,
+      image_url: image_url || null,
+      linkedin: linkedin || null,
       skills: skills || [],
-      active: active !== undefined ? active : true
+      availability: availability || 'weekdays',
+      active: active !== undefined ? active : true,
+      display_order: display_order ?? 999
     });
 
     await mentor.save();
@@ -114,7 +122,7 @@ router.post('/mentors', authenticate, requireAdmin, async (req, res) => {
 // Update mentor
 router.put('/mentors/:id', authenticate, requireAdmin, async (req, res) => {
   try {
-    const { name, title, bio, skills, active, image, display_order } = req.body;
+    const { name, title, bio, skills, active, image_url, linkedin, availability, display_order } = req.body;
     
     const mentor = await Mentor.findByIdAndUpdate(
       req.params.id,
@@ -124,8 +132,10 @@ router.put('/mentors/:id', authenticate, requireAdmin, async (req, res) => {
         bio,
         skills: skills || [],
         active: active !== undefined ? active : true,
-        image: image || undefined,
-        display_order: display_order || 0
+        image_url: image_url ?? null,
+        linkedin: linkedin ?? null,
+        availability: availability || 'weekdays',
+        display_order: display_order ?? 999
       },
       { new: true, runValidators: true }
     );
@@ -149,6 +159,71 @@ router.delete('/mentors/:id', authenticate, requireAdmin, async (req, res) => {
   } catch (error) {
     console.error('Delete mentor error:', error);
     res.status(500).json({ error: 'Failed to delete mentor' });
+  }
+});
+
+// Team management
+router.post('/team', authenticate, requireAdmin, async (req, res) => {
+  try {
+    const { name, title, bio, skills, active, image_url, linkedin, display_order } = req.body;
+
+    const member = new TeamMember({
+      name,
+      title,
+      bio,
+      skills: skills || [],
+      active: active !== undefined ? active : true,
+      image_url: image_url || null,
+      linkedin: linkedin || null,
+      display_order: display_order ?? 999
+    });
+
+    await member.save();
+
+    res.status(201).json(member);
+  } catch (error) {
+    console.error('Add team member error:', error);
+    res.status(500).json({ error: 'Failed to add team member' });
+  }
+});
+
+router.put('/team/:id', authenticate, requireAdmin, async (req, res) => {
+  try {
+    const { name, title, bio, skills, active, image_url, linkedin, display_order } = req.body;
+
+    const member = await TeamMember.findByIdAndUpdate(
+      req.params.id,
+      {
+        name,
+        title,
+        bio,
+        skills: skills || [],
+        active: active !== undefined ? active : true,
+        image_url: image_url ?? null,
+        linkedin: linkedin ?? null,
+        display_order: display_order ?? 999
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!member) {
+      return res.status(404).json({ error: 'Team member not found' });
+    }
+
+    res.json(member);
+  } catch (error) {
+    console.error('Update team member error:', error);
+    res.status(500).json({ error: 'Failed to update team member' });
+  }
+});
+
+router.delete('/team/:id', authenticate, requireAdmin, async (req, res) => {
+  try {
+    await TeamMember.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Team member deleted' });
+  } catch (error) {
+    console.error('Delete team member error:', error);
+    res.status(500).json({ error: 'Failed to delete team member' });
   }
 });
 

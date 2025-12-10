@@ -9,23 +9,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { adminApi, Course, Mentor, AdminStats } from "@/lib/api";
-import { AdminCoursePayload, CourseFormState } from "@/lib/types";
+import { adminApi, Course, Mentor, AdminStats, TeamMember } from "@/lib/api";
+import { AdminCoursePayload, CourseFormState, MentorAvailability } from "@/lib/types";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<AdminStats>({ users: 0, courses: 0, mentors: 0, enrollments: 0, messages: 0 });
   const [mentors, setMentors] = useState<Mentor[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [courseDialogOpen, setCourseDialogOpen] = useState(false);
+  const [teamDialogOpen, setTeamDialogOpen] = useState(false);
   const { toast } = useToast();
 
   // Form states
-  const [mentorForm, setMentorForm] = useState({ name: "", title: "", bio: "", skills: "" });
+  const [mentorForm, setMentorForm] = useState({ name: "", title: "", bio: "", skills: "", image_url: "", linkedin: "", availability: "weekdays" as MentorAvailability });
   const [editingMentorId, setEditingMentorId] = useState<string | null>(null);
   
-  const [courseForm, setCourseForm] = useState<CourseFormState & { image?: string }>({
+  const [courseForm, setCourseForm] = useState<CourseFormState & { image?: string; published?: boolean }>({
     course_name: "",
     date: "",
     duration: "",
@@ -33,8 +36,12 @@ export default function AdminDashboard() {
     price: "",
     mode: [],
     image: "",
+    published: true,
   });
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
+
+  const [teamForm, setTeamForm] = useState({ name: "", title: "", bio: "", skills: "", image_url: "", linkedin: "" });
+  const [editingTeamId, setEditingTeamId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -46,6 +53,7 @@ export default function AdminDashboard() {
       setStats(data.stats);
       setCourses(data.courses);
       setMentors(data.mentors);
+      setTeamMembers(data.teamMembers || []);
     } catch (error) {
       console.error('Failed to fetch admin data:', error);
     }
@@ -60,6 +68,9 @@ export default function AdminDashboard() {
           title: mentorForm.title || null,
           bio: mentorForm.bio || null,
           skills: mentorForm.skills ? mentorForm.skills.split(",").map(s => s.trim()) : [],
+          image_url: mentorForm.image_url || null,
+          linkedin: mentorForm.linkedin || null,
+          availability: mentorForm.availability,
           active: true,
         });
         toast({ title: "Mentor updated" });
@@ -70,11 +81,14 @@ export default function AdminDashboard() {
           title: mentorForm.title || null,
           bio: mentorForm.bio || null,
           skills: mentorForm.skills ? mentorForm.skills.split(",").map(s => s.trim()) : [],
+          image_url: mentorForm.image_url || null,
+          linkedin: mentorForm.linkedin || null,
+          availability: mentorForm.availability,
           active: true,
         });
         toast({ title: "Mentor added" });
       }
-      setMentorForm({ name: "", title: "", bio: "", skills: "" });
+      setMentorForm({ name: "", title: "", bio: "", skills: "", image_url: "", linkedin: "", availability: "weekdays" });
       setDialogOpen(false);
       fetchData();
     } catch (error: any) {
@@ -88,6 +102,9 @@ export default function AdminDashboard() {
       title: mentor.title || "",
       bio: mentor.bio || "",
       skills: mentor.skills?.join(", ") || "",
+      image_url: mentor.image_url || "",
+      linkedin: mentor.linkedin || "",
+      availability: (mentor.availability as MentorAvailability) || "weekdays",
     });
     setEditingMentorId(mentor._id);
     setDialogOpen(true);
@@ -96,10 +113,13 @@ export default function AdminDashboard() {
   function closeDialogs() {
     setDialogOpen(false);
     setCourseDialogOpen(false);
-    setMentorForm({ name: "", title: "", bio: "", skills: "" });
-    setCourseForm({ course_name: "", date: "", duration: "", description: "", price: "", mode: [], image: "" });
+    setTeamDialogOpen(false);
+    setMentorForm({ name: "", title: "", bio: "", skills: "", image_url: "", linkedin: "", availability: "weekdays" });
+    setCourseForm({ course_name: "", date: "", duration: "", description: "", price: "", mode: [], image: "", published: true });
+    setTeamForm({ name: "", title: "", bio: "", skills: "", image_url: "", linkedin: "" });
     setEditingMentorId(null);
     setEditingCourseId(null);
+    setEditingTeamId(null);
   }
 
   function validateCourse(): boolean {
@@ -158,7 +178,7 @@ export default function AdminDashboard() {
           price: payload.price,
           mode: payload.mode,
           slug: payload.course_name.toLowerCase().replace(/\s+/g, "-"),
-          published: true,
+          published: courseForm.published ?? true,
         });
         toast({ title: "Course updated successfully" });
         setEditingCourseId(null);
@@ -173,13 +193,13 @@ export default function AdminDashboard() {
           price: payload.price,
           mode: payload.mode,
           slug: payload.course_name.toLowerCase().replace(/\s+/g, "-"),
-          published: true,
+          published: courseForm.published ?? true,
         });
         toast({ title: "Course added successfully" });
       }
       
       // Reset form
-      setCourseForm({ course_name: "", date: "", duration: "", description: "", price: "", mode: [], image: "" });
+      setCourseForm({ course_name: "", date: "", duration: "", description: "", price: "", mode: [], image: "", published: true });
       setCourseDialogOpen(false);
       fetchData();
     } catch (error: any) {
@@ -196,6 +216,7 @@ export default function AdminDashboard() {
       price: course.price ? String(course.price) : "",
       mode: (course.mode || []) as ("online" | "offline")[],
       image: course.image || course.image_url || "",
+      published: course.published ?? true,
     });
     setEditingCourseId(course._id || "");
     setCourseDialogOpen(true);
@@ -221,6 +242,68 @@ export default function AdminDashboard() {
     }
   }
 
+  async function addTeamMember() {
+    try {
+      const payload = {
+        name: teamForm.name,
+        title: teamForm.title || null,
+        bio: teamForm.bio || null,
+        skills: teamForm.skills ? teamForm.skills.split(",").map(s => s.trim()) : [],
+        image_url: teamForm.image_url || null,
+        linkedin: teamForm.linkedin || null,
+        active: true,
+      };
+
+      if (editingTeamId) {
+        await adminApi.updateTeamMember(editingTeamId, payload);
+        toast({ title: "Team member updated" });
+        setEditingTeamId(null);
+      } else {
+        await adminApi.addTeamMember(payload);
+        toast({ title: "Team member added" });
+      }
+
+      setTeamForm({ name: "", title: "", bio: "", skills: "", image_url: "", linkedin: "" });
+      setTeamDialogOpen(false);
+      fetchData();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  }
+
+  function openEditTeam(member: TeamMember) {
+    setTeamForm({
+      name: member.name,
+      title: member.title || "",
+      bio: member.bio || "",
+      skills: member.skills?.join(", ") || "",
+      image_url: member.image_url || "",
+      linkedin: member.linkedin || "",
+    });
+    setEditingTeamId(member._id || null);
+    setTeamDialogOpen(true);
+  }
+
+  async function toggleTeamVisibility(id: string, active: boolean) {
+    try {
+      await adminApi.updateTeamMember(id, { active: !active });
+      toast({ title: !active ? "Member is now visible" : "Member hidden" });
+      fetchData();
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to update member visibility", variant: "destructive" });
+    }
+  }
+
+  async function deleteTeamMember(id: string) {
+    try {
+      await adminApi.deleteTeamMember(id);
+      toast({ title: "Team member deleted" });
+      fetchData();
+    } catch (error) {
+      console.error('Failed to delete team member:', error);
+    }
+  }
+
   async function deleteCourse(id: string) {
     try {
       await adminApi.deleteCourse(id);
@@ -228,6 +311,16 @@ export default function AdminDashboard() {
       fetchData();
     } catch (error) {
       console.error('Failed to delete course:', error);
+    }
+  }
+
+  async function toggleCourseVisibility(id: string, published: boolean) {
+    try {
+      await adminApi.updateCourse(id, { published: !published });
+      toast({ title: !published ? "Course is now visible" : "Course hidden" });
+      fetchData();
+    } catch (error) {
+      toast({ title: "Error", description: "Failed to update course visibility", variant: "destructive" });
     }
   }
 
@@ -253,6 +346,7 @@ export default function AdminDashboard() {
     { label: "Total Users", value: stats.users, icon: Users },
     { label: "Courses", value: stats.courses, icon: BookOpen },
     { label: "Mentors", value: stats.mentors, icon: GraduationCap },
+    { label: "Team", value: stats.team ?? teamMembers.length, icon: Users },
     { label: "Enrollments", value: stats.enrollments, icon: Users },
     { label: "Messages", value: stats.messages, icon: Mail },
   ];
@@ -263,7 +357,7 @@ export default function AdminDashboard() {
         <h1 className="text-2xl font-display font-bold text-foreground mb-8">Admin Dashboard</h1>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
           {statCards.map((stat) => (
             <div key={stat.label} className="bg-card rounded-xl border border-border p-4">
               <div className="flex items-center gap-2 text-muted-foreground mb-1">
@@ -280,6 +374,7 @@ export default function AdminDashboard() {
           <TabsList>
             <TabsTrigger value="mentors">Mentors</TabsTrigger>
             <TabsTrigger value="courses">Courses</TabsTrigger>
+            <TabsTrigger value="team">Our Team</TabsTrigger>
           </TabsList>
 
           <TabsContent value="mentors" className="mt-6">
@@ -296,6 +391,19 @@ export default function AdminDashboard() {
                     <div><Label>Title</Label><Input value={mentorForm.title} onChange={(e) => setMentorForm({ ...mentorForm, title: e.target.value })} /></div>
                     <div><Label>Bio</Label><Textarea value={mentorForm.bio} onChange={(e) => setMentorForm({ ...mentorForm, bio: e.target.value })} /></div>
                     <div><Label>Skills (comma-separated)</Label><Input value={mentorForm.skills} onChange={(e) => setMentorForm({ ...mentorForm, skills: e.target.value })} /></div>
+                    <div><Label>Image URL</Label><Input placeholder="/images/1.jpeg or https://..." value={mentorForm.image_url} onChange={(e) => setMentorForm({ ...mentorForm, image_url: e.target.value })} /></div>
+                    <div><Label>LinkedIn URL</Label><Input placeholder="https://linkedin.com/in/..." value={mentorForm.linkedin} onChange={(e) => setMentorForm({ ...mentorForm, linkedin: e.target.value })} /></div>
+                    <div className="space-y-2">
+                      <Label>Availability</Label>
+                      <Select value={mentorForm.availability} onValueChange={(value: MentorAvailability) => setMentorForm({ ...mentorForm, availability: value })}>
+                        <SelectTrigger><SelectValue placeholder="Select availability" /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="weekdays">Weekdays</SelectItem>
+                          <SelectItem value="weekends">Weekends</SelectItem>
+                          <SelectItem value="on-demand">On Demand</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <Button onClick={addMentor} disabled={!mentorForm.name} className="w-full">{editingMentorId ? "Update Mentor" : "Add Mentor"}</Button>
                   </div>
                 </DialogContent>
@@ -303,17 +411,18 @@ export default function AdminDashboard() {
             </div>
             <div className="bg-card rounded-xl border border-border overflow-hidden">
               <table className="w-full text-sm">
-                <thead className="bg-muted"><tr><th className="text-left p-3">Name</th><th className="text-left p-3">Title</th><th className="text-left p-3">Status</th><th className="p-3"></th></tr></thead>
+                <thead className="bg-muted"><tr><th className="text-left p-3">Name</th><th className="text-left p-3">Title</th><th className="text-left p-3">Availability</th><th className="text-left p-3">Status</th><th className="p-3"></th></tr></thead>
                 <tbody>
                   {mentors.map((m) => (
                     <tr key={m._id} className="border-t border-border">
                       <td className="p-3 font-medium">{m.name}</td>
                       <td className="p-3 text-muted-foreground">{m.title || "-"}</td>
+                      <td className="p-3 text-muted-foreground capitalize">{m.availability?.replace("-", " ") || "weekdays"}</td>
                       <td className="p-3"><span className={`px-2 py-1 rounded text-xs ${m.active ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>{m.active ? "Visible" : "Hidden"}</span></td>
                       <td className="p-3 flex gap-2 justify-end"><Button variant="ghost" size="icon" onClick={() => toggleMentorVisibility(m._id, m.active)} title={m.active ? "Hide mentor" : "Show mentor"}>{m.active ? <Eye className="h-4 w-4 text-primary" /> : <EyeOff className="h-4 w-4 text-muted-foreground" />}</Button><Button variant="ghost" size="icon" onClick={() => openEditMentor(m)}><Edit className="h-4 w-4 text-primary" /></Button><Button variant="ghost" size="icon" onClick={() => deleteMentor(m._id)}><Trash2 className="h-4 w-4 text-destructive" /></Button></td>
                     </tr>
                   ))}
-                  {mentors.length === 0 && <tr><td colSpan={4} className="p-8 text-center text-muted-foreground">No mentors yet</td></tr>}
+                  {mentors.length === 0 && <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No mentors yet</td></tr>}
                 </tbody>
               </table>
             </div>
@@ -428,6 +537,15 @@ export default function AdminDashboard() {
                       </div>
                     </div>
 
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="published"
+                        checked={courseForm.published ?? true}
+                        onCheckedChange={() => setCourseForm(prev => ({ ...prev, published: !prev.published }))}
+                      />
+                      <Label htmlFor="published" className="font-normal cursor-pointer">Visible on site</Label>
+                    </div>
+
                     <Button
                       onClick={addCourse}
                       disabled={!canSaveCourse}
@@ -441,7 +559,7 @@ export default function AdminDashboard() {
             </div>
             <div className="bg-card rounded-xl border border-border overflow-hidden">
               <table className="w-full text-sm">
-                <thead className="bg-muted"><tr><th className="text-left p-3">Title</th><th className="text-left p-3">Date</th><th className="text-left p-3">Mode</th><th className="text-left p-3">Price</th><th className="p-3"></th></tr></thead>
+                <thead className="bg-muted"><tr><th className="text-left p-3">Title</th><th className="text-left p-3">Date</th><th className="text-left p-3">Mode</th><th className="text-left p-3">Price</th><th className="text-left p-3">Visibility</th><th className="p-3"></th></tr></thead>
                 <tbody>
                   {courses.map((c: any) => (
                     <tr key={c._id} className="border-t border-border">
@@ -449,10 +567,65 @@ export default function AdminDashboard() {
                       <td className="p-3 text-muted-foreground">{c.date || "-"}</td>
                       <td className="p-3 text-muted-foreground">{c.mode?.join(", ") || "-"}</td>
                       <td className="p-3 text-muted-foreground">{c.price ? `$${c.price}` : "Free"}</td>
-                      <td className="p-3 flex gap-2 justify-end"><Button variant="ghost" size="icon" onClick={() => openEditCourse(c)}><Edit className="h-4 w-4 text-primary" /></Button><Button variant="ghost" size="icon" onClick={() => deleteCourse(c._id)}><Trash2 className="h-4 w-4 text-destructive" /></Button></td>
+                      <td className="p-3 text-muted-foreground">
+                        <span className={`px-2 py-1 rounded text-xs ${c.published ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
+                          {c.published ? "Visible" : "Hidden"}
+                        </span>
+                      </td>
+                      <td className="p-3 flex gap-2 justify-end">
+                        <Button variant="ghost" size="icon" onClick={() => toggleCourseVisibility(c._id, c.published ?? true)} title={c.published ? "Hide course" : "Show course"}>
+                          {c.published ? <Eye className="h-4 w-4 text-primary" /> : <EyeOff className="h-4 w-4 text-muted-foreground" />}
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => openEditCourse(c)}><Edit className="h-4 w-4 text-primary" /></Button>
+                        <Button variant="ghost" size="icon" onClick={() => deleteCourse(c._id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                      </td>
                     </tr>
                   ))}
-                  {courses.length === 0 && <tr><td colSpan={5} className="p-8 text-center text-muted-foreground">No courses yet</td></tr>}
+                  {courses.length === 0 && <tr><td colSpan={6} className="p-8 text-center text-muted-foreground">No courses yet</td></tr>}
+                </tbody>
+              </table>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="team" className="mt-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Manage Team</h2>
+              <Dialog open={teamDialogOpen} onOpenChange={(open) => { if (!open) closeDialogs(); setTeamDialogOpen(open); }}>
+                <DialogTrigger asChild>
+                  <Button size="sm"><Plus className="h-4 w-4 mr-1" /> Add Member</Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader><DialogTitle>{editingTeamId ? "Edit Member" : "Add Member"}</DialogTitle></DialogHeader>
+                  <div className="space-y-4">
+                    <div><Label>Name *</Label><Input value={teamForm.name} onChange={(e) => setTeamForm({ ...teamForm, name: e.target.value })} /></div>
+                    <div><Label>Title</Label><Input value={teamForm.title} onChange={(e) => setTeamForm({ ...teamForm, title: e.target.value })} /></div>
+                    <div><Label>Bio</Label><Textarea value={teamForm.bio} onChange={(e) => setTeamForm({ ...teamForm, bio: e.target.value })} /></div>
+                    <div><Label>Skills (comma-separated)</Label><Input value={teamForm.skills} onChange={(e) => setTeamForm({ ...teamForm, skills: e.target.value })} /></div>
+                    <div><Label>Image URL</Label><Input placeholder="/images/1.jpeg or https://..." value={teamForm.image_url} onChange={(e) => setTeamForm({ ...teamForm, image_url: e.target.value })} /></div>
+                    <div><Label>LinkedIn URL</Label><Input placeholder="https://linkedin.com/in/..." value={teamForm.linkedin} onChange={(e) => setTeamForm({ ...teamForm, linkedin: e.target.value })} /></div>
+                    <Button onClick={addTeamMember} disabled={!teamForm.name} className="w-full">{editingTeamId ? "Update Member" : "Add Member"}</Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <div className="bg-card rounded-xl border border-border overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-muted"><tr><th className="text-left p-3">Name</th><th className="text-left p-3">Title</th><th className="text-left p-3">Status</th><th className="p-3"></th></tr></thead>
+                <tbody>
+                  {teamMembers.map((member) => (
+                    <tr key={member._id} className="border-t border-border">
+                      <td className="p-3 font-medium">{member.name}</td>
+                      <td className="p-3 text-muted-foreground">{member.title || "-"}</td>
+                      <td className="p-3"><span className={`px-2 py-1 rounded text-xs ${member.active ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>{member.active ? "Visible" : "Hidden"}</span></td>
+                      <td className="p-3 flex gap-2 justify-end">
+                        <Button variant="ghost" size="icon" onClick={() => toggleTeamVisibility(member._id || "", member.active)} title={member.active ? "Hide member" : "Show member"}>{member.active ? <Eye className="h-4 w-4 text-primary" /> : <EyeOff className="h-4 w-4 text-muted-foreground" />}</Button>
+                        <Button variant="ghost" size="icon" onClick={() => openEditTeam(member)}><Edit className="h-4 w-4 text-primary" /></Button>
+                        <Button variant="ghost" size="icon" onClick={() => deleteTeamMember(member._id || "")}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                      </td>
+                    </tr>
+                  ))}
+                  {teamMembers.length === 0 && <tr><td colSpan={4} className="p-8 text-center text-muted-foreground">No team members yet</td></tr>}
                 </tbody>
               </table>
             </div>

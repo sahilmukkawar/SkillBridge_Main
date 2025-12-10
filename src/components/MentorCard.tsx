@@ -10,6 +10,7 @@ interface MentorCardProps {
   skills: string[] | null;
   linkedin: string | null;
   twitter: string | null;
+  availability?: string | null;
   compact?: boolean;
 }
 
@@ -22,6 +23,7 @@ export function MentorCard({
   skills,
   linkedin,
   twitter,
+  availability,
   compact = false,
 }: MentorCardProps) {
   // Compact version for home page grid
@@ -87,7 +89,10 @@ export function MentorCard({
             </h3>
           </Link>
         </div>
-        
+        {availability && (
+          <p className="text-xs text-muted-foreground mb-2 uppercase tracking-wide">Available: {availability.replace("-", " ")}</p>
+        )}
+
         {bio && (
           <p className="text-sm text-muted-foreground leading-relaxed line-clamp-4 md:line-clamp-none">
             {bio}

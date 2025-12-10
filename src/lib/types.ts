@@ -35,3 +35,18 @@ export interface ImageUploadResponse {
   success: boolean;
   error?: string;
 }
+
+export type MentorAvailability = "weekdays" | "weekends" | "on-demand";
+
+export interface TeamMember {
+  _id?: string;
+  name: string;
+  title: string | null;
+  bio: string | null;
+  image_url: string | null;
+  skills: string[] | null;
+  linkedin: string | null;
+  active: boolean;
+  display_order?: number;
+  created_at?: string;
+}

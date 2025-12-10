@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const mentorSchema = new mongoose.Schema({
+const teamMemberSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
@@ -25,15 +25,6 @@ const mentorSchema = new mongoose.Schema({
     type: String,
     default: null
   },
-  twitter: {
-    type: String,
-    default: null
-  },
-  availability: {
-    type: String,
-    enum: ['weekdays', 'weekends', 'on-demand'],
-    default: 'weekdays'
-  },
   active: {
     type: Boolean,
     default: true
@@ -48,4 +39,5 @@ const mentorSchema = new mongoose.Schema({
   }
 });
 
-export default mongoose.model('Mentor', mentorSchema);
+export default mongoose.model('TeamMember', teamMemberSchema);
+

@@ -110,6 +110,7 @@ export default function Mentors() {
                       skills={mentor.skills}
                       linkedin={mentor.linkedin}
                       twitter={mentor.twitter}
+                      availability={mentor.availability}
                       compact={false}
                     />
                   </div>

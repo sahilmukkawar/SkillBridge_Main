@@ -352,103 +352,6 @@ export default function Index() {
         </div>
       </section>
 
-      {/* Batches Section - uses GlowingCards */}
-      <section className="py-16 lg:py-24 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-3xl lg:text-4xl font-display font-bold text-foreground mb-4">
-              Training Batches
-            </h2>
-            <p className="text-muted-foreground">Choose the program that fits your schedule and learning goals</p>
-          </div>
-
-          <div className="mb-8">
-            <GlowingCards
-              enableGlow
-              glowRadius={18}
-              glowOpacity={0.95}
-              animationDuration={300}
-              gap="1.5rem"
-              maxWidth="90rem"
-              padding="2rem 1rem"
-              customTheme={{ cardBg: "var(--card-bg)", cardBorder: "var(--card-border)" }}
-            >
-              {/* Student Card */}
-              <GlowingCard glowColor="#10b981" className="max-w-sm">
-                <div className="flex flex-col h-full">
-                  <div className="text-4xl mb-3">🎓</div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">For Students</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    1 Month Program • 12 Sessions • 3 Days/Week • Online/Offline
-                  </p>
-                  <ul className="space-y-2 mb-6 text-sm text-muted-foreground flex-grow">
-                    <li>✓ Domain + 2 Tech + 2 Softskills</li>
-                    <li>✓ 6–8 PM Sessions</li>
-                    <li>✓ Starting Jan 2026</li>
-                  </ul>
-                  <div className="mt-auto">
-                    <Link to="/batches?type=students">
-                      <Button variant="outline" className="w-full">Learn More</Button>
-                    </Link>
-                  </div>
-                </div>
-              </GlowingCard>
-
-              {/* Professionals Card */}
-              <GlowingCard glowColor="#ef4444" className="max-w-sm">
-                <div className="flex flex-col h-full">
-                  <div className="text-4xl mb-3">⚡</div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">For Professionals</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Weekend Batches • 12 Hours Sessions • Domain + Softskills
-                  </p>
-                  <ul className="space-y-2 mb-6 text-sm text-muted-foreground flex-grow">
-                    <li>✓ Flexible Timings</li>
-                    <li>✓ Online/Offline</li>
-                    <li>✓ Starting Jan 2026</li>
-                  </ul>
-                  <div className="mt-auto">
-                    <Link to="/batches?type=professionals">
-                      <Button className="w-full">Get Started</Button>
-                    </Link>
-                  </div>
-                </div>
-              </GlowingCard>
-
-              {/* Colleges Card */}
-              <GlowingCard glowColor="#3b82f6" className="max-w-sm">
-                <div className="flex flex-col h-full">
-                  <div className="text-4xl mb-3">🏛️</div>
-                  <h3 className="text-xl font-semibold text-foreground mb-2">For Colleges</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Customized Batches • Flexible Timings • Bulk Training
-                  </p>
-                  <ul className="space-y-2 mb-6 text-sm text-muted-foreground flex-grow">
-                    <li>✓ Curriculum Customization</li>
-                    <li>✓ Flexible Duration</li>
-                    <li>✓ Enhanced Placements</li>
-                  </ul>
-                  <div className="mt-auto">
-                    <Link to="/batches?type=colleges">
-                      <Button variant="outline" className="w-full">Explore</Button>
-                    </Link>
-                  </div>
-                </div>
-              </GlowingCard>
-            </GlowingCards>
-          </div>
-
-          <div className="text-center">
-            <Link to="/batches">
-              <Button size="lg">
-                View All Batches
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* Featured Mentors */}
       <section className="py-16 lg:py-24 bg-muted/50">
         <div className="container mx-auto px-4">
@@ -488,6 +391,7 @@ export default function Index() {
                     skills={mentor.skills}
                     linkedin={mentor.linkedin}
                     twitter={mentor.twitter}
+                    availability={mentor.availability}
                     compact
                   />
                 </div>

@@ -5,7 +5,6 @@ const footerLinks = {
   explore: [
     { name: "About Us", href: "/about" },
     { name: "Our Mentors", href: "/mentors" },
-    { name: "Batches", href: "/batches" },
     { name: "Domains", href: "/domains" },
   ],
   support: [
@@ -118,6 +117,30 @@ export function Footer() {
                 </li>
               </ul>
             </div>
+          </div>
+        </div>
+
+        {/* Map */}
+        <div className="mt-10">
+          <h3 className="text-sm font-semibold mb-4">Find Us</h3>
+          <div className="rounded-xl overflow-hidden border border-background/10 shadow-lg bg-background">
+            <iframe
+              title="SkillBridge Location"
+              src="https://www.google.com/maps?q=A%20702%2C%20Ruturang%20Society%20Phase%201%2C%20Aranyeshwar%20Road%2C%20Pune%20411009&output=embed"
+              width="100%"
+              height="260"
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+            <a
+              href="https://maps.app.goo.gl/ZzeekqhX6yngLvsFA"
+              target="_blank"
+              rel="noreferrer"
+              className="block text-xs text-background/70 hover:text-accent px-4 py-2"
+            >
+              Open in Google Maps
+            </a>
           </div>
         </div>
 

@@ -1,3 +1,5 @@
+import type { MentorAvailability, TeamMember } from "./types";
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Get token from localStorage
@@ -95,6 +97,13 @@ export const mentorsApi = {
   },
 };
 
+// Team API
+export const teamApi = {
+  getAll: async () => {
+    return apiRequest<TeamMember[]>('/team');
+  },
+};
+
 // Enrollments API
 export const enrollmentsApi = {
   getAll: async () => {
@@ -140,6 +149,7 @@ export const adminApi = {
       stats: AdminStats;
       courses: Course[];
       mentors: Mentor[];
+      teamMembers: TeamMember[];
     }>('/admin/stats');
   },
 
@@ -159,6 +169,26 @@ export const adminApi = {
 
   deleteMentor: async (id: string) => {
     return apiRequest<{ message: string }>(`/admin/mentors/${id}`, {
+      method: 'DELETE',
+    });
+  },
+
+  addTeamMember: async (member: Partial<TeamMember>) => {
+    return apiRequest<TeamMember>('/admin/team', {
+      method: 'POST',
+      body: JSON.stringify(member),
+    });
+  },
+
+  updateTeamMember: async (id: string, member: Partial<TeamMember>) => {
+    return apiRequest<TeamMember>(`/admin/team/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(member),
+    });
+  },
+
+  deleteTeamMember: async (id: string) => {
+    return apiRequest<{ message: string }>(`/admin/team/${id}`, {
       method: 'DELETE',
     });
   },
@@ -248,6 +278,8 @@ export interface Mentor {
   skills: string[] | null;
   linkedin: string | null;
   twitter: string | null;
+  availability?: MentorAvailability;
+  display_order?: number;
   active: boolean;
   created_at: string;
 }
@@ -276,9 +308,12 @@ export interface AdminStats {
   users: number;
   courses: number;
   mentors: number;
+  team?: number;
   enrollments: number;
   messages: number;
 }
+
+export type { TeamMember, MentorAvailability } from "./types";
 
 // Check if user is authenticated
 export const isAuthenticated = (): boolean => {

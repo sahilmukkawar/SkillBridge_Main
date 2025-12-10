@@ -16,7 +16,6 @@ import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 import FAQs from "./pages/FAQs";
-import Batches from "./pages/Batches";
 import Domains from "./pages/Domains";
 
 const queryClient = new QueryClient();
@@ -34,7 +33,6 @@ const App = () => (
             <Route path="/courses" element={<Courses />} />
             <Route path="/courses/:slug" element={<CourseDetail />} />
             <Route path="/mentors" element={<Mentors />} />
-            <Route path="/batches" element={<Batches />} />
             <Route path="/domains" element={<Domains />} />
             <Route path="/faqs" element={<FAQs />} />
             <Route path="/about" element={<About />} />

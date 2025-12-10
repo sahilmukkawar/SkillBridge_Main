@@ -7,11 +7,13 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import coursesRoutes from './routes/courses.js';
 import mentorsRoutes from './routes/mentors.js';
+import teamRoutes from './routes/team.js';
 import enrollmentsRoutes from './routes/enrollments.js';
 import profilesRoutes from './routes/profiles.js';
 import contactRoutes from './routes/contact.js';
 import adminRoutes from './routes/admin.js';
 import Mentor from './models/Mentor.js';
+import TeamMember from './models/TeamMember.js';
 
 dotenv.config();
 
@@ -82,16 +84,47 @@ const defaultMentors = [
     }
 ];
 
-// Seed default mentors
-const seedMentors = async () => {
+// Default team data
+const defaultTeam = [
+    {
+        image_url: "/images/1.jpeg",
+        name: "Rahul Bhide",
+        title: "Founder and CEO",
+        bio: "With 27 years of experience across Capital Markets and FinTech, Rahul specializes in reviving stalled initiatives, delivering multi-million-dollar transformations, and leading client services organizations at scale. Rahul has directed global delivery and support teams (up to 150 members) across trading, post-trade, lending, and compliance platforms, ensuring measurable improvements in client satisfaction, SLAs, and operational resilience.",
+        skills: ["Capital Markets", "FinTech", "Transformation Leadership", "Client Services", "Global Delivery", "Trading Systems", "Post-Trade", "Compliance"],
+        linkedin: "https://www.linkedin.com/in/rahul1bhide/",
+        display_order: 1
+    },
+    {
+        image_url: "/images/2.jpeg",
+        name: "Swanand Kakade",
+        title: "Co-Founder and COO",
+        bio: "With 20+ years in capital markets and trading systems, Swanand’s expertise spans Order Management Systems (OMS), Direct Market Access (DMA), Risk Gateways, Smart Algos, and Global market data platforms across the US, UK, and APAC regions. Combining deep domain knowledge with strong technical proficiency. Swanand also holds advanced expertise in technical analysis — including candlestick patterns, Point & Figure charts, and mutual fund strategies — making complex financial concepts clear, actionable, and practical for learners.",
+        skills: ["Order Management Systems", "Direct Market Access", "Risk Gateways", "Smart Algos", "Market Data Platforms", "Python", "SQL", "Linux", "Automation", "Technical Analysis"],
+        linkedin: "https://www.linkedin.com/in/swanand-kakade-912ba76/",
+        display_order: 2
+    }
+];
+
+// Seed default mentors / team
+const seedDefaults = async () => {
     try {
-        const count = await Mentor.countDocuments();
-        if (count === 0) {
-            await Mentor.insertMany(defaultMentors);
+        const [mentorCount, teamCount] = await Promise.all([
+            Mentor.countDocuments(),
+            TeamMember.countDocuments()
+        ]);
+
+        if (mentorCount === 0) {
+            await Mentor.insertMany(defaultMentors.map(m => ({ ...m, availability: 'weekdays' })));
             console.log('Default mentors seeded successfully');
         }
+
+        if (teamCount === 0) {
+            await TeamMember.insertMany(defaultTeam);
+            console.log('Default team seeded successfully');
+        }
     } catch (error) {
-        console.error('Error seeding mentors:', error);
+        console.error('Error seeding defaults:', error);
     }
 };
 
@@ -99,7 +132,7 @@ const seedMentors = async () => {
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => {
         console.log('Connected to MongoDB Atlas');
-        seedMentors();
+        seedDefaults();
     })
     .catch(err => console.error('MongoDB connection error:', err));
 
@@ -107,6 +140,7 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', coursesRoutes);
 app.use('/api/mentors', mentorsRoutes);
+app.use('/api/team', teamRoutes);
 app.use('/api/enrollments', enrollmentsRoutes);
 app.use('/api/profiles', profilesRoutes);
 app.use('/api/contact', contactRoutes);

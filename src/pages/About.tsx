@@ -1,7 +1,9 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Target, Eye, Heart, Users, Award, BookOpen } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
+import { teamApi, TeamMember } from "@/lib/api";
 
 const values = [
   {
@@ -28,7 +30,46 @@ const stats = [
   { value: "95%", label: "Success Rate" },
 ];
 
+const fallbackTeam: TeamMember[] = [
+  {
+    _id: "rahul-bhide",
+    name: "Rahul Bhide",
+    title: "Founder and CEO",
+    bio: "With 27 years of experience across Capital Markets and FinTech, Rahul specializes in reviving stalled initiatives, delivering multi-million-dollar transformations, and leading client services organizations at scale.",
+    image_url: "/images/1.jpeg",
+    skills: ["Capital Markets", "FinTech", "Transformation Leadership", "Client Services", "Global Delivery", "Trading Systems", "Post-Trade", "Compliance"],
+    linkedin: "https://www.linkedin.com/in/rahul1bhide/",
+    active: true,
+  },
+  {
+    _id: "swanand-kakade",
+    name: "Swanand Kakade",
+    title: "Co-Founder and COO",
+    bio: "With 20+ years in capital markets and trading systems, Swanand’s expertise spans OMS, DMA, Risk Gateways, Smart Algos, and market data platforms across the US, UK, and APAC regions.",
+    image_url: "/images/2.jpeg",
+    skills: ["Order Management Systems", "Direct Market Access", "Risk Gateways", "Smart Algos", "Market Data Platforms", "Python", "SQL", "Linux", "Automation", "Technical Analysis"],
+    linkedin: "https://www.linkedin.com/in/swanand-kakade-912ba76/",
+    active: true,
+  },
+];
+
 export default function About() {
+  const [team, setTeam] = useState<TeamMember[]>(fallbackTeam);
+
+  useEffect(() => {
+    async function loadTeam() {
+      try {
+        const data = await teamApi.getAll();
+        if (data && data.length > 0) {
+          setTeam(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch team", error);
+      }
+    }
+    loadTeam();
+  }, []);
+
   return (
     <Layout>
       {/* Hero */}
@@ -97,6 +138,55 @@ export default function About() {
                   {stat.value}
                 </div>
                 <div className="text-sm text-muted-foreground">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Team */}
+      <section className="py-16 lg:py-24 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <h2 className="text-3xl font-display font-bold text-foreground mb-4">Our Team</h2>
+            <p className="text-muted-foreground">Meet the leaders shaping SkillBridge.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {team.map((member) => (
+              <div key={member._id} className="bg-card rounded-xl border border-border p-6 shadow-sm hover:shadow-lg transition-shadow">
+                <div className="flex items-start gap-4">
+                  <div className="w-20 h-20 rounded-full overflow-hidden border border-border bg-muted flex-shrink-0">
+                    {member.image_url ? (
+                      <img src={member.image_url} alt={member.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-xl font-semibold text-muted-foreground">
+                        {member.name.charAt(0)}
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-2 flex-1">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-xl font-semibold text-foreground">{member.name}</h3>
+                      {member.linkedin && (
+                        <a href={member.linkedin} className="text-primary text-sm hover:underline" target="_blank" rel="noreferrer">
+                          LinkedIn
+                        </a>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">{member.title}</p>
+                    {member.bio && <p className="text-sm text-muted-foreground leading-relaxed">{member.bio}</p>}
+                    {member.skills && member.skills.length > 0 && (
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {member.skills.slice(0, 6).map((skill) => (
+                          <span key={skill} className="px-2 py-1 rounded-full bg-muted text-xs text-muted-foreground border border-border">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             ))}
           </div>
