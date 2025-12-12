@@ -71,6 +71,22 @@ export const authApi = {
   getMe: async () => {
     return apiRequest<{ user: User }>('/auth/me');
   },
+  
+  // Forgot password
+  forgotPassword: async (email: string) => {
+    return apiRequest<{ message: string }>('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    });
+  },
+  
+  // Reset password
+  resetPassword: async (data: { token: string; email: string; newPassword: string }) => {
+    return apiRequest<{ message: string }>('/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
 };
 
 // Courses API

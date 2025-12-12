@@ -27,6 +27,12 @@ const userSchema = new mongoose.Schema({
         enum: ['user', 'admin', 'mentor'],
         default: 'user'
     }],
+    resetPasswordToken: {
+        type: String
+    },
+    resetPasswordExpires: {
+        type: Date
+    },
     created_at: {
         type: Date,
         default: Date.now
@@ -45,10 +51,12 @@ userSchema.methods.comparePassword = async function (candidatePassword) {
     return await bcrypt.compare(candidatePassword, this.password);
 };
 
-// Transform to JSON (exclude password)
+// Transform to JSON (exclude password and reset token fields)
 userSchema.methods.toJSON = function () {
     const obj = this.toObject();
     delete obj.password;
+    delete obj.resetPasswordToken;
+    delete obj.resetPasswordExpires;
     return obj;
 };
 

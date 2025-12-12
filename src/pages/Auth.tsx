@@ -219,56 +219,68 @@ export default function Auth() {
               </Button>
             </form>
           ) : (
-            <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <div className="relative mt-1">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    className="pl-10"
-                    {...loginForm.register("email")}
-                  />
+            <>
+              <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <div className="relative mt-1">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="email"
+                      type="email"
+                      placeholder="you@example.com"
+                      className="pl-10"
+                      {...loginForm.register("email")}
+                    />
+                  </div>
+                  {loginForm.formState.errors.email && (
+                    <p className="text-sm text-destructive mt-1">
+                      {loginForm.formState.errors.email.message}
+                    </p>
+                  )}
                 </div>
-                {loginForm.formState.errors.email && (
-                  <p className="text-sm text-destructive mt-1">
-                    {loginForm.formState.errors.email.message}
-                  </p>
-                )}
-              </div>
 
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <div className="relative mt-1">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    className="pl-10"
-                    {...loginForm.register("password")}
-                  />
+                <div>
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative mt-1">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="password"
+                      type="password"
+                      placeholder="••••••••"
+                      className="pl-10"
+                      {...loginForm.register("password")}
+                    />
+                  </div>
+                  {loginForm.formState.errors.password && (
+                    <p className="text-sm text-destructive mt-1">
+                      {loginForm.formState.errors.password.message}
+                    </p>
+                  )}
                 </div>
-                {loginForm.formState.errors.password && (
-                  <p className="text-sm text-destructive mt-1">
-                    {loginForm.formState.errors.password.message}
-                  </p>
-                )}
-              </div>
 
-              <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
-                {isLoading ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Signing in...
-                  </>
-                ) : (
-                  "Sign In"
-                )}
-              </Button>
-            </form>
+                <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    "Sign In"
+                  )}
+                </Button>
+              </form>
+
+              {/* Forgot Password Link */}
+              <div className="mt-4 text-center">
+                <Link 
+                  to="/forgot-password" 
+                  className="text-sm text-primary hover:underline"
+                >
+                  Forgot your password?
+                </Link>
+              </div>
+            </>
           )}
 
           {/* Toggle */}
