@@ -1,6 +1,7 @@
 {
   "version": 2,
   "builds": [
+    { "src": "index.html", "use": "@vercel/static" },
     { "src": "api/handler.js", "use": "@vercel/node" },
     { "src": "api/health.js", "use": "@vercel/node" },
     { "src": "api/test.js", "use": "@vercel/node" },
@@ -10,6 +11,8 @@
     { "src": "/api/health", "dest": "/api/health.js" },
     { "src": "/api/test", "dest": "/api/test.js" },
     { "src": "/api/db-test", "dest": "/api/db-test.js" },
-    { "src": "/api/(.*)", "dest": "/api/handler.js" }
+    { "src": "/api/(.*)", "dest": "/api/handler.js" },
+    { "src": "/", "dest": "/index.html" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
