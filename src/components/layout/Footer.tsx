@@ -23,7 +23,7 @@ const footerLinks = {
 const socialLinks = [
   { name: "Facebook", icon: Facebook, href: "https://www.facebook.com/share/1Bo5a6KmQb/" },
   { name: "Instagram", icon: Instagram, href: "https://www.instagram.com/skillbridgeofficial_?igsh=MXUxaTBoeGZoenUwOA==" },
-  { name: "LinkedIn", icon: Linkedin, href: "#" },
+  { name: "LinkedIn", icon: Linkedin, href: "https://www.linkedin.com/company/skill-bridge-prasu-soft-lab/about/?viewAsMember=true" },
   { name: "Twitter", icon: Twitter, href: "#" },
 ];
 
