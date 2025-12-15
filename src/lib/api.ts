@@ -260,6 +260,26 @@ export const adminApi = {
   },
 };
 
+// Gallery API (public)
+export const galleryApi = {
+  getAll: async () => {
+    const response = await fetch(`${API_BASE_URL}/gallery`);
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || 'Failed to fetch gallery');
+    }
+    return response.json();
+  }
+};
+
+// Admin gallery endpoints
+export const adminGalleryApi = {
+  getAll: async () => apiRequest('/admin/gallery'),
+  create: async (payload: { image_url: string; title?: string; hidden?: boolean }) => apiRequest('/admin/gallery', { method: 'POST', body: JSON.stringify(payload) }),
+  update: async (id: string, payload: Partial<{ image_url: string; title: string; hidden: boolean }>) => apiRequest(`/admin/gallery/${id}`, { method: 'PUT', body: JSON.stringify(payload) }),
+  remove: async (id: string) => apiRequest(`/admin/gallery/${id}`, { method: 'DELETE' }),
+};
+
 // Types
 export interface User {
   id: string;

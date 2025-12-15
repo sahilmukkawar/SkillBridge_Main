@@ -12,6 +12,7 @@ import enrollmentsRoutes from './routes/enrollments.js';
 import profilesRoutes from './routes/profiles.js';
 import contactRoutes from './routes/contact.js';
 import adminRoutes from './routes/admin.js';
+import galleryRoutes from './routes/gallery.js';
 import Mentor from './models/Mentor.js';
 import TeamMember from './models/TeamMember.js';
 
@@ -145,6 +146,7 @@ app.use('/api/enrollments', enrollmentsRoutes);
 app.use('/api/profiles', profilesRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/gallery', galleryRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

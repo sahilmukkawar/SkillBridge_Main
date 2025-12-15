@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Users, BookOpen, GraduationCap, Mail, Plus, Trash2, Edit, Loader2, Eye, EyeOff } from "lucide-react";
+import { Users, BookOpen, GraduationCap, Mail, Plus, Trash2, Edit, Loader2, Eye, EyeOff, Image, UploadCloud } from "lucide-react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { adminApi, Course, Mentor, AdminStats, TeamMember, EnrollmentDetails } from "@/lib/api";
+import { adminApi, adminGalleryApi, Course, Mentor, AdminStats, TeamMember, EnrollmentDetails } from "@/lib/api";
 import { AdminCoursePayload, CourseFormState, MentorAvailability } from "@/lib/types";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
@@ -24,6 +24,10 @@ export default function AdminDashboard() {
   const [courseDialogOpen, setCourseDialogOpen] = useState(false);
   const [teamDialogOpen, setTeamDialogOpen] = useState(false);
   const [enrollmentsLoading, setEnrollmentsLoading] = useState(false);
+  const [galleryImages, setGalleryImages] = useState<any[]>([]);
+  const [galleryLoading, setGalleryLoading] = useState(false);
+  const [newImageUrl, setNewImageUrl] = useState('');
+  const [newImageTitle, setNewImageTitle] = useState('');
   const { toast } = useToast();
 
   // Form states
@@ -47,6 +51,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     fetchData();
+    fetchGalleryAdmin();
   }, []);
 
   async function fetchData() {
@@ -72,6 +77,19 @@ export default function AdminDashboard() {
       toast({ title: "Error", description: "Failed to fetch enrollments", variant: "destructive" });
     } finally {
       setEnrollmentsLoading(false);
+    }
+  }
+
+  async function fetchGalleryAdmin() {
+    try {
+      setGalleryLoading(true);
+      const data = await adminGalleryApi.getAll();
+      setGalleryImages(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Failed to fetch gallery images:', error);
+      toast({ title: 'Error', description: 'Failed to fetch gallery images', variant: 'destructive' });
+    } finally {
+      setGalleryLoading(false);
     }
   }
 
@@ -427,6 +445,7 @@ export default function AdminDashboard() {
             <TabsTrigger value="mentors">Mentors</TabsTrigger>
             <TabsTrigger value="courses">Courses</TabsTrigger>
             <TabsTrigger value="team">Our Team</TabsTrigger>
+            <TabsTrigger value="gallery">Gallery</TabsTrigger>
             <TabsTrigger value="enrollments">Enrollments</TabsTrigger>
           </TabsList>
 
@@ -681,6 +700,76 @@ export default function AdminDashboard() {
                   {teamMembers.length === 0 && <tr><td colSpan={4} className="p-8 text-center text-muted-foreground">No team members yet</td></tr>}
                 </tbody>
               </table>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="gallery" className="mt-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-semibold">Manage Gallery</h2>
+              <div className="flex items-center gap-2">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <UploadCloud className="h-4 w-4" />
+                  <input type="file" accept="image/*" onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    try {
+                      const url = await adminApi.uploadImage(file);
+                      await adminGalleryApi.create({ image_url: url, title: newImageTitle });
+                      setNewImageTitle('');
+                      setNewImageUrl('');
+                      toast({ title: 'Image uploaded' });
+                      fetchGalleryAdmin();
+                    } catch (err: any) {
+                      toast({ title: 'Upload failed', description: err?.message || String(err), variant: 'destructive' });
+                    }
+                  }} className="hidden" />
+                  <Button size="sm">Upload File</Button>
+                </label>
+              </div>
+            </div>
+
+            <div className="space-y-4 mb-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Input placeholder="Image URL (https://...)" value={newImageUrl} onChange={(e) => setNewImageUrl(e.target.value)} />
+                <Input placeholder="Title (optional)" value={newImageTitle} onChange={(e) => setNewImageTitle(e.target.value)} />
+                <Button onClick={async () => {
+                  if (!newImageUrl) { toast({ title: 'Provide an URL' }); return; }
+                  try {
+                    await adminGalleryApi.create({ image_url: newImageUrl, title: newImageTitle });
+                    setNewImageUrl(''); setNewImageTitle('');
+                    toast({ title: 'Image added' });
+                    fetchGalleryAdmin();
+                  } catch (err: any) {
+                    toast({ title: 'Failed', description: err?.message || String(err), variant: 'destructive' });
+                  }
+                }}>Add by URL</Button>
+              </div>
+            </div>
+
+            <div className="bg-card rounded-xl border border-border p-4">
+              {galleryLoading ? (
+                <div className="py-8 text-center"><Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" /></div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {galleryImages.map(img => (
+                    <div key={img._id} className="border rounded p-2 bg-background">
+                      <img src={img.image_url} alt={img.title || 'Gallery image'} className="w-full h-36 object-cover rounded" />
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="text-sm">{img.title || 'Untitled'}</div>
+                        <div className="flex items-center gap-1">
+                          <Button variant="ghost" size="icon" onClick={async () => {
+                            await adminGalleryApi.update(img._id, { hidden: !img.hidden });
+                            toast({ title: img.hidden ? 'Shown' : 'Hidden' });
+                            fetchGalleryAdmin();
+                          }}>{img.hidden ? <EyeOff className="h-4 w-4 text-muted-foreground" /> : <Eye className="h-4 w-4 text-primary" />}</Button>
+                          <Button variant="ghost" size="icon" onClick={async () => { if (!confirm('Delete image?')) return; await adminGalleryApi.remove(img._id); toast({ title: 'Deleted' }); fetchGalleryAdmin(); }}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {galleryImages.length === 0 && <div className="p-8 text-center text-muted-foreground col-span-full">No images yet</div>}
+                </div>
+              )}
             </div>
           </TabsContent>
 

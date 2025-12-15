@@ -93,6 +93,59 @@ router.post('/upload-image', authenticate, requireAdmin, upload.single('image'),
   }
 });
 
+// Gallery management (admin)
+import GalleryImage from '../models/GalleryImage.js';
+
+// Get all gallery images (admin view)
+router.get('/gallery', authenticate, requireAdmin, async (req, res) => {
+  try {
+    const images = await GalleryImage.find().sort({ created_at: -1 });
+    res.json(images);
+  } catch (error) {
+    console.error('Get admin gallery error:', error);
+    res.status(500).json({ error: 'Failed to fetch gallery images' });
+  }
+});
+
+// Add gallery image (body: image_url, title, hidden)
+router.post('/gallery', authenticate, requireAdmin, async (req, res) => {
+  try {
+    const { image_url, title, hidden } = req.body;
+    if (!image_url) return res.status(400).json({ error: 'image_url is required' });
+
+    const img = new GalleryImage({ image_url, title: title || '', hidden: !!hidden });
+    await img.save();
+    res.status(201).json(img);
+  } catch (error) {
+    console.error('Add gallery image error:', error);
+    res.status(500).json({ error: 'Failed to add gallery image' });
+  }
+});
+
+// Update gallery image (hide/unhide or title)
+router.put('/gallery/:id', authenticate, requireAdmin, async (req, res) => {
+  try {
+    const data = req.body;
+    const img = await GalleryImage.findByIdAndUpdate(req.params.id, data, { new: true });
+    if (!img) return res.status(404).json({ error: 'Gallery image not found' });
+    res.json(img);
+  } catch (error) {
+    console.error('Update gallery image error:', error);
+    res.status(500).json({ error: 'Failed to update gallery image' });
+  }
+});
+
+// Delete gallery image
+router.delete('/gallery/:id', authenticate, requireAdmin, async (req, res) => {
+  try {
+    await GalleryImage.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Deleted' });
+  } catch (error) {
+    console.error('Delete gallery image error:', error);
+    res.status(500).json({ error: 'Failed to delete gallery image' });
+  }
+});
+
 // Add mentor
 router.post('/mentors', authenticate, requireAdmin, async (req, res) => {
   try {
