@@ -35,7 +35,7 @@ const features = [
     description: "Get guidance from professionals who've walked the path you're starting.",
   },
   {
-    title: "Hands-on Projects",
+    title: " Project Assitance & Mentoring",
     description: "Build a portfolio of real projects that showcase your capabilities.",
   },
   {
@@ -283,17 +283,19 @@ export default function Index() {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-hero py-20 lg:py-32">
+      <section
+        className="relative overflow-hidden py-16 lg:py-24 flex items-center"
+        style={{ minHeight: "calc(100vh - 72px)", background: "linear-gradient(135deg,#032a63 0%,#0b4a9e 100%)" }}
+      >
         <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-10 w-72 h-72 bg-accent rounded-full blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary-foreground rounded-full blur-3xl" />
+          <div className="absolute top-12 left-8 w-56 h-56 md:w-80 md:h-80 bg-accent rounded-full blur-3xl" />
+          <div className="absolute bottom-12 right-8 w-72 h-72 md:w-96 md:h-96 bg-primary-foreground rounded-full blur-3xl" />
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-primary-foreground mb-6 animate-fade-in-up">
-              Empowering Careers,
-              <span className="block text-accent">Elevating Institutions. </span>
+          <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
+            <h1 className="inline-block text-4xl md:text-5xl lg:text-6xl font-display font-bold text-primary-foreground mb-6 animate-fade-in-up whitespace-nowrap">
+              Empowering Careers, <span className="text-accent">Elevating Institutions.</span>
             </h1>
             <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
              Your bridge to domain coaching, skilled-development, and hiring for students and educational partners.

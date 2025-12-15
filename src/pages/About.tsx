@@ -73,15 +73,22 @@ export default function About() {
   return (
     <Layout>
       {/* Hero */}
-      <section className="bg-gradient-hero py-16 lg:py-24">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-3xl lg:text-5xl font-display font-bold text-primary-foreground mb-6">
-              Empowering Learners to Achieve Their Dreams
+      <section
+        className="relative overflow-hidden py-16 lg:py-24 flex items-center"
+        style={{ minHeight: "calc(100vh - 72px)", background: "linear-gradient(135deg,#032a63 0%,#0b4a9e 100%)" }}
+      >
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-12 left-8 w-56 h-56 md:w-80 md:h-80 bg-accent rounded-full blur-3xl" />
+          <div className="absolute bottom-12 right-8 w-72 h-72 md:w-96 md:h-96 bg-primary-foreground rounded-full blur-3xl" />
+        </div>
+
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-3xl mx-auto text-center flex flex-col items-center">
+            <h1 className="inline-block text-4xl md:text-5xl lg:text-6xl font-display font-bold text-primary-foreground mb-6 animate-fade-in-up whitespace-nowrap">
+              Empowering Careers, <span className="text-accent">Elevating Institutions.</span>
             </h1>
-            <p className="text-lg text-primary-foreground/80">
-              SKILLBRIDGE was founded with a simple mission: to make quality education
-              accessible to everyone and help bridge the gap between learning and career success.
+            <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+              Your bridge to domain coaching, skilled-development, and hiring for students and educational partners.
             </p>
           </div>
         </div>
@@ -227,10 +234,10 @@ export default function About() {
                 from people who've actually worked in the field.
               </p>
               <p>
-                Today, SKILLBRIDGE serves thousands of learners worldwide, helping them master
-                new skills, land their dream jobs, and build successful careers. But we're
-                just getting started. Our mission to democratize education continues, and
-                we're excited about the impact we can make together.
+                Today, SKILLBRIDGE want learners help to master new skills, land their dream
+                jobs, and build successful careers. But we're just getting started. Our mission
+                to democratize education continues, and we're excited about the impact we can
+                make together.
               </p>
             </div>
           </div>
