@@ -17,12 +17,19 @@ dotenv.config();
 
 const app = express();
 
+// Configure CORS for Vercel deployment
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:8080', 'http://127.0.0.1:5173'],
+  origin: [
+    'http://localhost:5173', 
+    'http://localhost:8080', 
+    'http://127.0.0.1:5173',
+    /\.vercel\.app$/,  // Allow all Vercel deployments
+    process.env.FRONTEND_URL  // Your specific frontend URL
+  ].filter(Boolean),  // Remove any falsy values
   credentials: true,
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 // Serve public static files (uploads, images, etc.)
 app.use(express.static('public'));
@@ -40,7 +47,19 @@ app.use('/api/gallery', galleryRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'SkillBridge API is running' });
+  res.json({ 
+    status: 'ok', 
+    message: 'SkillBridge API is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Handle undefined routes
+app.use('*', (req, res) => {
+  res.status(404).json({ 
+    error: 'Route not found',
+    message: 'The requested API endpoint does not exist'
+  });
 });
 
 export async function connectDB() {
@@ -51,14 +70,36 @@ export async function connectDB() {
   }
 
   try {
+    // Check if already connected
+    if (mongoose.connection.readyState === 1) {
+      console.log('Already connected to MongoDB');
+      return;
+    }
+    
+    // For serverless environments, we want quick timeouts
     await mongoose.connect(uri, {
-      // useUnifiedTopology and useNewUrlParser are default in mongoose v6+
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
     });
     console.log('Connected to MongoDB');
   } catch (err) {
     console.error('MongoDB connection error:', err);
     throw err;
   }
+}
+
+// Graceful shutdown for non-serverless environments
+if (process.env.NODE_ENV !== 'production') {
+  process.on('SIGINT', async () => {
+    try {
+      await mongoose.connection.close();
+      console.log('MongoDB connection closed through app termination');
+      process.exit(0);
+    } catch (err) {
+      console.error('Error closing MongoDB connection:', err);
+      process.exit(1);
+    }
+  });
 }
 
 export default app;
