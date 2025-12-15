@@ -2,6 +2,11 @@ import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 import authRoutes from './routes/auth.js';
 import coursesRoutes from './routes/courses.js';
@@ -54,11 +59,29 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Root route for checking if server is running
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Welcome to SkillBridge API',
+    version: '1.0.0',
+    documentation: '/api/health for health check'
+  });
+});
+
 // Handle undefined routes
 app.use('*', (req, res) => {
+  // If requesting API routes that don't exist, return JSON error
+  if (req.originalUrl.startsWith('/api')) {
+    return res.status(404).json({ 
+      error: 'Route not found',
+      message: 'The requested API endpoint does not exist'
+    });
+  }
+  
+  // For non-API routes, return a simple message
   res.status(404).json({ 
     error: 'Route not found',
-    message: 'The requested API endpoint does not exist'
+    message: 'The requested endpoint does not exist'
   });
 });
 

@@ -3,128 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkillBridge API</title>
+    <title>SkillBridge API Server</title>
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: Arial, sans-serif;
             max-width: 800px;
             margin: 0 auto;
             padding: 2rem;
-            background-color: #f8f9fa;
-            color: #333;
+            background-color: #f5f5f5;
         }
         .container {
-            background: white;
+            background-color: white;
             padding: 2rem;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         h1 {
-            color: #007acc;
-            margin-bottom: 1rem;
-        }
-        .subtitle {
-            color: #666;
-            margin-bottom: 2rem;
-        }
-        .endpoints {
-            text-align: left;
-            background: #f1f8ff;
-            padding: 1.5rem;
-            border-radius: 6px;
-            margin: 2rem 0;
+            color: #333;
+            text-align: center;
         }
         .endpoint {
-            margin: 1rem 0;
+            background-color: #f8f9fa;
+            border-left: 4px solid #007bff;
             padding: 1rem;
-            background: white;
-            border-radius: 4px;
-            border-left: 4px solid #007acc;
+            margin: 1rem 0;
         }
-        .endpoint-method {
-            display: inline-block;
-            background: #007acc;
-            color: white;
-            padding: 0.2rem 0.5rem;
-            border-radius: 3px;
-            font-size: 0.9rem;
-            margin-right: 0.5rem;
-        }
-        .endpoint-path {
+        .endpoint-title {
             font-weight: bold;
-            color: #333;
-        }
-        .endpoint-desc {
-            color: #666;
-            font-size: 0.9rem;
-            margin-top: 0.3rem;
+            color: #007bff;
         }
         .note {
-            background: #fff8e1;
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
             padding: 1rem;
+            margin: 1rem 0;
+        }
+        code {
+            background-color: #f8f9fa;
+            padding: 0.2rem 0.4rem;
             border-radius: 4px;
-            margin-top: 2rem;
-            font-size: 0.9rem;
+            font-family: monospace;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>SkillBridge API</h1>
-        <p class="subtitle">Backend Service for SkillBridge Platform</p>
+        <h1>SkillBridge API Server</h1>
         
-        <p>Welcome to the SkillBridge backend API. This service provides the RESTful API endpoints for the SkillBridge platform.</p>
+        <p>Welcome to the SkillBridge API server. This is the backend service for the SkillBridge platform.</p>
         
-        <div class="endpoints">
-            <h2>Available API Endpoints</h2>
-            
-            <div class="endpoint">
-                <span class="endpoint-method">GET</span>
-                <span class="endpoint-path">/api/health</span>
-                <p class="endpoint-desc">Health check endpoint to verify API status</p>
-            </div>
-            
-            <div class="endpoint">
-                <span class="endpoint-method">GET</span>
-                <span class="endpoint-path">/api/test</span>
-                <p class="endpoint-desc">Test endpoint to verify basic functionality</p>
-            </div>
-            
-            <div class="endpoint">
-                <span class="endpoint-method">GET</span>
-                <span class="endpoint-path">/api/db-test</span>
-                <p class="endpoint-desc">Database connection test endpoint</p>
-            </div>
-            
-            <div class="endpoint">
-                <span class="endpoint-method">POST</span>
-                <span class="endpoint-path">/api/auth/register</span>
-                <p class="endpoint-desc">User registration endpoint</p>
-            </div>
-            
-            <div class="endpoint">
-                <span class="endpoint-method">POST</span>
-                <span class="endpoint-path">/api/auth/login</span>
-                <p class="endpoint-desc">User authentication endpoint</p>
-            </div>
-            
-            <div class="endpoint">
-                <span class="endpoint-method">GET</span>
-                <span class="endpoint-path">/api/courses</span>
-                <p class="endpoint-desc">Retrieve available courses</p>
-            </div>
-            
-            <div class="endpoint">
-                <span class="endpoint-method">GET</span>
-                <span class="endpoint-path">/api/mentors</span>
-                <p class="endpoint-desc">Retrieve mentor information</p>
-            </div>
+        <div class="endpoint">
+            <div class="endpoint-title">API Health Check</div>
+            <p>Endpoint: <code>GET /api/health</code></p>
+            <p>Use this endpoint to verify that the API is running correctly.</p>
+        </div>
+        
+        <div class="endpoint">
+            <div class="endpoint-title">Authentication</div>
+            <p>Endpoints:</p>
+            <ul>
+                <li><code>POST /api/auth/register</code> - User registration</li>
+                <li><code>POST /api/auth/login</code> - User login</li>
+            </ul>
+        </div>
+        
+        <div class="endpoint">
+            <div class="endpoint-title">Courses</div>
+            <p>Endpoints:</p>
+            <ul>
+                <li><code>GET /api/courses</code> - Get all courses</li>
+                <li><code>GET /api/courses/:id</code> - Get course by ID</li>
+            </ul>
+        </div>
+        
+        <div class="endpoint">
+            <div class="endpoint-title">Mentors</div>
+            <p>Endpoints:</p>
+            <ul>
+                <li><code>GET /api/mentors</code> - Get all mentors</li>
+                <li><code>GET /api/mentors/:id</code> - Get mentor by ID</li>
+            </ul>
         </div>
         
         <div class="note">
-            <strong>Note:</strong> This is the backend API service. For the full SkillBridge experience, 
-            please visit our frontend application and configure it to connect to this API endpoint.
+            <strong>Note:</strong> This is a backend API server. For the full SkillBridge experience, 
+            please visit our frontend application at the appropriate URL.
+        </div>
+        
+        <div class="endpoint">
+            <div class="endpoint-title">Documentation</div>
+            <p>For complete API documentation, please refer to the project documentation.</p>
         </div>
     </div>
 </body>
